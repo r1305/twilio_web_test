@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import utils.SendWsp;
 
 /**
  *
@@ -27,17 +28,28 @@ public class SendMessage extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
-        String input = request.getParameter("msg");
-        String to = request.getParameter("phone");
-        Message message = Message.creator( 
-                    new com.twilio.type.PhoneNumber("whatsapp:"+to), 
-                    new com.twilio.type.PhoneNumber("whatsapp:"+FROM),
-                    input)      
-                .create();
-        response.setContentType("text/html;charset=UTF-8");
+        /***********************************/
+        String MessageSid=request.getParameter("MessageSid");
+        String SmsSid=request.getParameter("SmsSid");
+        String AccountSid=request.getParameter("AccountSid");
+        String MessagingServiceSid=request.getParameter("MessagingServiceSid");
+        String To=request.getParameter("To");
+        String From=request.getParameter("From");
+        String Body=request.getParameter("Body");
+        SendWsp wsp = new SendWsp();
+        boolean send = wsp.sendMessage(Body, From);
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            out.print("{\"to\":\""+to+"\",\"message\":\""+input+"\",\"sid\":\""+message.getSid()+"\")}");
+            String cadena = "{";
+            cadena += "\"To\":\""+To+"\",";
+            cadena += "\"From\":\""+From+"\",";
+            cadena += "\"Body\":\""+Body+"\",";
+            cadena += "\"MessageSid\":"+MessageSid+"\"";
+            cadena += "\"SmsSid\":"+SmsSid+"\"";
+            cadena += "\"AccountSid\":"+AccountSid+"\"";
+            cadena += "\"MessagingServiceSid\":"+MessagingServiceSid+"\"";
+            cadena += "\"SendStatus\":"+(send?1:0)+"\"";
+            out.print(cadena);
         }
     }
 
