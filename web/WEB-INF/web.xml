@@ -8,6 +8,18 @@
         <servlet-name>ReceiveMessage</servlet-name>
         <servlet-class>servlets.ReceiveMessage</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SendMail</servlet-name>
+        <servlet-class>servlets.SendMail</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReceiveMessageChatApi</servlet-name>
+        <servlet-class>servlets.ReceiveMessageChatApi</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SendMessageChatApi</servlet-name>
+        <servlet-class>servlets.SendMessageChatApi</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SendMessage</servlet-name>
         <url-pattern>/SendMessage</url-pattern>
@@ -15,6 +27,18 @@
     <servlet-mapping>
         <servlet-name>ReceiveMessage</servlet-name>
         <url-pattern>/ReceiveMessage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SendMail</servlet-name>
+        <url-pattern>/SendMail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReceiveMessageChatApi</servlet-name>
+        <url-pattern>/ReceiveMessageChatApi</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SendMessageChatApi</servlet-name>
+        <url-pattern>/SendMessageChatApi</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

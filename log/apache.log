@@ -1,0 +1,2 @@
+may 20, 2019 8:14:29 PM servlets.SendMessage processRequest
+INFORMACIÓN: **{"NumeroServicio":"whatsapp:+14155238886","TokenMensaje":"SMbca2b3854902cf0a405c240987ba35d9","NumeroDestino":"whatsapp:+14155238886","Mensaje":"Prueba Postman","EstadoEnvio":0,"HoraRecepcion":"08:14:27","Fecha":"2019-05-20","DateTimeWic":"1558401267","Costo":"0.005","EstadoLectura":0,"NumeroOrigen":"whatsapp:+5198085892"}
