@@ -111,5 +111,5 @@ public class ChatApi {
             Logger.getLogger(ChatApi.class.getName()).log(Level.SEVERE, null, ex);
         }
         return obj;
-    }
+    }   
 }

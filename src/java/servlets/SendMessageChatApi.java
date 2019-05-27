@@ -34,16 +34,13 @@ import utils.ReadResponse;
  * @author Admin
  */
 public class SendMessageChatApi extends HttpServlet {
-    private final String instanceId = "42642";
-    private final String token_chat_api = "r0ylaeoi02z8mhfo";
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, ParseException {
         response.setContentType("text/html;charset=UTF-8");
         Long smuserid = null;
         String token = null;
-        //String host = "10.200.43.232";
-        String host = "54.39.1.25";
-        JSONParser parser = new JSONParser();      
+        JSONParser parser = new JSONParser();
+        Data data = new Data();
         
         /** GET RESPONSE FROM CHAT-API **/
         StringBuffer jb = new StringBuffer();
@@ -55,8 +52,7 @@ public class SendMessageChatApi extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Logger.getLogger(SendMessageChatApi.class.getName()).log(Level.SEVERE, null,"json_from_chatapi: "+ jb.toString());
-        /**Send message to final user **/
+        
         JSONObject json = (JSONObject)parser.parse(jb.toString());
         
         JSONArray jar = (JSONArray)json.get("messages");
@@ -72,7 +68,6 @@ public class SendMessageChatApi extends HttpServlet {
         long unixTime = System.currentTimeMillis() / 1000L;
         
         //Create new connection with socket
-        Data data = new Data();
         ChatApi chat_api = new ChatApi();
         if(!fromMe){
             boolean isNewConnection = data.isNewConnection(phone_number);
@@ -81,6 +76,7 @@ public class SendMessageChatApi extends HttpServlet {
                 JSONObject connection = chat_api.createConnection(phone_number);
                 smuserid = (Long)connection.get("smuserid");
                 token = (String)connection.get("token");
+                data.saveMessage(token, Body, phone_number);
                 try {
                     Thread.sleep(500);
                     /** Send Message to Asesor **/
@@ -117,7 +113,7 @@ public class SendMessageChatApi extends HttpServlet {
                 JSONObject datos = data.findByPhone(phone_number);
                 token = (String)datos.get("token");
                 smuserid = Long.parseLong(datos.get("smuserid").toString());
-                
+                data.saveMessage(token, Body, phone_number);
 
                 try (PrintWriter out = response.getWriter()) {
                     Thread.sleep(500);
