@@ -20,6 +20,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import utils.Data;
 import utils.ReadResponse;
 
 /**
@@ -28,16 +29,18 @@ import utils.ReadResponse;
  */
 public class ChatApi {
     private final String host = "54.39.1.25";
+    Data data;
     public JSONObject sendMessage(String token,String phone_number,Long smuserid,String body){
         JSONObject obj = new JSONObject();
         JSONParser parser = new JSONParser();
         HttpClient httpClient = new DefaultHttpClient();
         HttpResponse httpresponse;
+        data = new Data();
         try {
             String uuid = token;
             String master_id=phone_number;
             Long sender =smuserid;
-            Long receiver = 0L;
+            Long receiver = data.getReceiver(token);
             String time = String.valueOf((System.currentTimeMillis() / 1000L));
             
             //Make url with GET params
@@ -60,6 +63,7 @@ public class ChatApi {
             ReadResponse reader = new ReadResponse();
             String sb = reader.readResponse(httpresponse);
             obj = (JSONObject)parser.parse(sb);
+            obj.put("receiver", receiver);
             
         } catch (URISyntaxException ex) {
             Logger.getLogger(ChatApi.class.getName()).log(Level.SEVERE, null, ex);

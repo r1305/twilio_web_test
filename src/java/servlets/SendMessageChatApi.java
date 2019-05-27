@@ -76,7 +76,6 @@ public class SendMessageChatApi extends HttpServlet {
                 JSONObject connection = chat_api.createConnection(phone_number);
                 smuserid = (Long)connection.get("smuserid");
                 token = (String)connection.get("token");
-                data.saveMessage(token, Body, phone_number);
                 try {
                     Thread.sleep(500);
                     /** Send Message to Asesor **/
@@ -104,7 +103,7 @@ public class SendMessageChatApi extends HttpServlet {
                         obj.put("newSession",true);
 
                         //logger.info(json.toJSONString());
-                        out.print(json);
+                        out.print(obj);
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(SendMessageChatApi.class.getName()).log(Level.SEVERE, null, ex);
@@ -113,8 +112,7 @@ public class SendMessageChatApi extends HttpServlet {
                 JSONObject datos = data.findByPhone(phone_number);
                 token = (String)datos.get("token");
                 smuserid = Long.parseLong(datos.get("smuserid").toString());
-                data.saveMessage(token, Body, phone_number);
-
+                
                 try (PrintWriter out = response.getWriter()) {
                     Thread.sleep(500);
                     JSONObject response3 = chat_api.sendMessage(token, phone_number, smuserid, Body);
@@ -137,13 +135,15 @@ public class SendMessageChatApi extends HttpServlet {
                     obj.put("response3",response3);
                     obj.put("message_type", response3.get("message").toString().split(":")[1]);
                     obj.put("newSession",false);
+                    obj.put("receiver",data.getReceiver(token));
 
                     //logger.info(json.toJSONString());
-                    out.print(json);
+                    out.print(obj);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(SendMessageChatApi.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            data.saveMessage(token, Body, phone_number);
         }else{
             System.out.println("fromMe: False");
         }

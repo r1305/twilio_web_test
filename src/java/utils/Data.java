@@ -31,9 +31,9 @@ public class Data {
         JSONParser parser = new JSONParser();
         SqlConnection connection = new SqlConnection();
         con = connection.createConnection();
+        String sql = "SELECT clientInformation FROM smtbusersession WHERE uuid='"+token+"'";
         try {
             stmt = con.createStatement();
-            String sql = "SELECT clientInformation FROM smtbusersession WHERE uuid='"+token+"'";
             rs =stmt.executeQuery(sql);
             while(rs.next()){
                 String clientInformation = rs.getString(1);
@@ -104,17 +104,38 @@ public class Data {
         try{
             pst = con.prepareStatement(sql);
             pst.setString(1, message);
-            pst.setString(1, token);
-            pst.setString(1, phone);
-            pst.executeQuery();
+            pst.setString(2, token);
+            pst.setString(3, phone);
+            pst.executeUpdate();
             rs = pst.getResultSet();
             int cont = pst.getUpdateCount();
-            System.out.println("rows_insert: "+cont);
+            if(cont==1)
             con.close();
+                saved=true;
             pst.close();
         }catch(SQLException ex){
             Logger.getLogger(Data.class.getName()).log(Level.SEVERE, null, ex);
         }
         return saved;
+    }
+    
+    public Long getReceiver (String token)
+    {
+        Long receiver = 0L;
+        SqlConnection connection = new SqlConnection();
+        con = connection.createConnection();
+        String sql = "SELECT userIdTwo FROM smchatchannel WHERE uuid='"+token+"'";
+        try {
+            stmt = con.createStatement();
+            rs =stmt.executeQuery(sql);
+            while(rs.next()){
+                receiver = rs.getLong(1);             
+            }
+            con.close();
+            rs.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Data.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return receiver;
     }
 }
