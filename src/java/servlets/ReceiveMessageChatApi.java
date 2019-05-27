@@ -7,6 +7,10 @@ package servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -15,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -24,22 +29,20 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import utils.Data;
 
-/**
- *
- * @author Admin
- */
 public class ReceiveMessageChatApi extends HttpServlet {
 
-    private final String instanceId = "42642";
-    private final String token = "r0ylaeoi02z8mhfo";
+    private final String instanceId = "43110";
+    private final String token = "hucre8poyxlxphkq";
+    private final String encoding = "UTF-8";
+    private final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        request.setCharacterEncoding("UTF-8");
+        //response.setContentType("text/html;charset=UTF-8");
+        //response.setCharacterEncoding(encoding);
+        //request.setCharacterEncoding(encoding);
         HttpClient httpClient = new DefaultHttpClient();
         JSONParser parser = new JSONParser();
         
-
         try (PrintWriter out = response.getWriter()) {
             String url = "http://api.chat-api.com/instance"+instanceId+"/sendMessage?token="+token;
             JSONObject sendPost = new JSONObject();
@@ -47,41 +50,49 @@ public class ReceiveMessageChatApi extends HttpServlet {
             String msg = request.getParameter("body");
             String hangup = request.getParameter("hangup"); //0 vivo 1 fin
             String token = request.getParameter("token");
-            Data data = new Data();
-            JSONObject clientInformation = data.getClientInformation(token);
-            
-            String phone_number = clientInformation.get("master-id").toString();
+            if(!hangup.equals("1")){
+                Data data = new Data();
+                JSONObject clientInformation = data.getClientInformation(token);
 
-            sendPost.put("phone", phone_number);
-            sendPost.put("body",msg);
+                String phone_number = clientInformation.get("master-id").toString();
 
-            HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("Accept-Encoding", "gzip, deflate");
-            httpPost.setHeader("Accept-Language", "es-ES,es;q=0.9,en;q=0.8");
-            httpPost.setHeader("X-Requested-With", "XMLHttpRequest");
+                sendPost.put("phone", phone_number);
+                String body = URLDecoder.decode(URLEncoder.encode(msg, encoding));
+                sendPost.put("body",body);
 
-            StringEntity stringEntity = new StringEntity(sendPost.toString());
-            httpPost.setEntity(stringEntity);
+                HttpPost httpPost = new HttpPost(url);
+                httpPost.setHeader("Content-type","application/json;charset=UTF-8");
 
-            HttpResponse httpresponse = httpClient.execute(httpPost);
+                StringEntity stringEntity = new StringEntity(sendPost.toString());
+                httpPost.setEntity(stringEntity);
 
-            /* Get response from Chat-api */
-            try {
-                HttpEntity entity = httpresponse.getEntity();
-                String responseString = EntityUtils.toString(entity, "UTF-8");                            
-                JSONObject json = (JSONObject)parser.parse(responseString);
-                try{
+                HttpResponse httpresponse = httpClient.execute(httpPost);
+
+                /* Get response from Chat-api */
+                try {
+                    HttpEntity entity = httpresponse.getEntity();
+                    String responseString = EntityUtils.toString(entity, encoding);                            
+                    JSONObject json = (JSONObject)parser.parse(responseString);
+                    json.put("body_encode",URLEncoder.encode(msg, encoding));
+                    json.put("body_decode",URLDecoder.decode(msg, encoding));
+                    json.put("body",msg);
                     out.print(json);
-                }catch(Exception e){
-                    out.print("* "+e.toString());
+                } catch (IOException | ParseException | org.json.simple.parser.ParseException e) {
+                    out.print(e.toString());
                 }
-            } catch (Exception e) {
-                out.print("** "+e.toString());
             }
+                
         }catch(Exception e){
             Logger.getLogger(Data.class.getName()).log(Level.SEVERE, null, e);
         }
+    }
+
+    String decodeUTF8(byte[] bytes) {
+        return new String(bytes, UTF8_CHARSET);
+    }
+
+    byte[] encodeUTF8(String string) {
+        return string.getBytes(UTF8_CHARSET);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
